@@ -256,73 +256,77 @@ const buildEditPrompt = (
   const isCoordSet = options.productCategory === ProductCategory.CoordSet || options.productCategory === ProductCategory.FullBody;
 
   // ============================================================================
-  // SECTION 1: MODEL IDENTITY LOCK - ULTRA STRICT FOR CO-ORD SET
+  // ULTIMATE MODEL LOCK - CANNOT BE OVERRIDDEN
   // ============================================================================
-  let identityLock = "";
+  let modelLock = "";
   if (hasModelReference) {
-      identityLock = `
+      modelLock = `
 ╔═══════════════════════════════════════════════════════════════════╗
-║  🔒 LEVEL 1 PRIORITY: BIOMETRIC IDENTITY LOCK - IMAGE ${indices.model}        ║
+║           🚨 ABSOLUTE RULE #1: MODEL IDENTITY IS FROZEN           ║
 ╚═══════════════════════════════════════════════════════════════════╝
 
-⚠️⚠️⚠️ CRITICAL WARNING: DO NOT CREATE A NEW PERSON ⚠️⚠️⚠️
+IMAGE ${indices.model} = THE ONLY MODEL ALLOWED
 
-IMAGE ${indices.model} shows the EXACT person who must appear in the output.
-This is NOT a style reference. This is the ACTUAL HUMAN BEING.
+⛔⛔⛔ UNDER NO CIRCUMSTANCES CREATE A DIFFERENT PERSON ⛔⛔⛔
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-MANDATORY BIOMETRIC CLONING FROM IMAGE ${indices.model}:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-1️⃣ FACE CLONING:
-   - Copy the EXACT face from IMAGE ${indices.model}
-   - Same eye shape, eye color, eyebrows
-   - Same nose shape and size
-   - Same mouth shape and lips
-   - Same jawline and chin
-   - Same facial bone structure
-   - Same facial expression
-   - ⚠️ DO NOT generate a different face
-
-2️⃣ HAIR CLONING:
-   - Copy the EXACT hair from IMAGE ${indices.model}
-   - Same hair color (do not lighten or darken)
-   - Same hairstyle (do not change cut, length, or styling)
-   - Same hair texture and volume
-   - Same hair parting
-   - ⚠️ DO NOT change the hairstyle
-
-3️⃣ FOOTWEAR CLONING:
-   - Copy the EXACT footwear from IMAGE ${indices.model}
-   - Same shoe type (heels/flats/sandals/boots/sneakers)
-   - Same shoe color
-   - Same shoe style
-   - Keep footwear visible in full-body shots
-   - ⚠️ DO NOT change the shoes
-
-4️⃣ SKIN TONE CLONING:
-   - Copy the EXACT skin tone from IMAGE ${indices.model}
-   - Same skin color and undertones
-   - Same skin texture
-   - ⚠️ DO NOT change skin tone
-
-5️⃣ BODY PROPORTIONS:
-   - Same height proportions as IMAGE ${indices.model}
-   - Same body frame as IMAGE ${indices.model}
+This is NOT a reference. This is NOT inspiration. This IS the actual person.
+You are dressing THIS EXACT person in new clothes. Not creating a new model.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚫 ABSOLUTE PROHIBITIONS:
+CLONE THESE EXACTLY FROM IMAGE ${indices.model}:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✗ DO NOT create a new model
-✗ DO NOT change the face
-✗ DO NOT change the hair
-✗ DO NOT change the footwear
-✗ DO NOT change the skin tone
-✗ This is the SAME person in a different outfit
+
+👤 FACE (100% COPY):
+   → Same face shape, bone structure, features
+   → Same eyes (shape, color, size, distance)
+   → Same nose (shape, size, bridge)
+   → Same mouth (lips shape, size)
+   → Same chin and jawline
+   → Same cheekbones
+   → Same eyebrows (shape, thickness, position)
+   → Same facial proportions
+   ⛔ NEVER generate a different face
+
+💇 HAIR (100% COPY):
+   → Same hair color (EXACT shade - do not lighten/darken)
+   → Same hairstyle (EXACT cut and length)
+   → Same hair texture (straight/wavy/curly)
+   → Same hair volume and density
+   → Same hair parting
+   → Same hairline
+   ⛔ NEVER change the hairstyle or color
+
+👠 FOOTWEAR (100% COPY):
+   → Same shoe type visible in IMAGE ${indices.model}
+   → Same shoe color
+   → Same shoe style
+   → Keep shoes visible in full-body shots
+   ⛔ NEVER change the footwear
+
+🎨 SKIN (100% COPY):
+   → Same skin tone (EXACT color)
+   → Same skin undertones (warm/cool/neutral)
+   → Same complexion
+   ⛔ NEVER alter skin tone
+
+📏 BODY (100% COPY):
+   → Same height and body proportions as IMAGE ${indices.model}
+   → Same body frame
+   → Same posture style
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERIFICATION BEFORE GENERATION:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Ask yourself: "Does this person look IDENTICAL to IMAGE ${indices.model}?"
+If answer is NO → STOP → Fix it → Try again
+If you cannot match IMAGE ${indices.model} exactly → DO NOT GENERATE
+
+⚠️ This is the SAME human being wearing different clothes.
+⚠️ Only the outfit changes. The person stays 100% identical.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
   } else {
-      identityLock = `
+      modelLock = `
 ╔═══════════════════════════════════════════════════════════════════╗
 ║  ⭐ PERSONA SPECIFICATION                                         ║
 ╚═══════════════════════════════════════════════════════════════════╝
@@ -332,273 +336,283 @@ MANDATORY BIOMETRIC CLONING FROM IMAGE ${indices.model}:
   }
 
   // ============================================================================
-  // SECTION 2: CO-ORD SET STRUCTURE - ULTRA STRICT
+  // CO-ORD SET STRUCTURE IF APPLICABLE
   // ============================================================================
-  let coordSetStructure = "";
+  let coordStructure = "";
   if (isCoordSet) {
-      coordSetStructure = `
+      coordStructure = `
 ╔═══════════════════════════════════════════════════════════════════╗
-║  🔥 LEVEL 2 PRIORITY: CO-ORD SET STRUCTURE                        ║
+║        🚨 ABSOLUTE RULE #2: GENERATE BOTH TOP AND BOTTOM          ║
 ╚═══════════════════════════════════════════════════════════════════╝
 
-⚠️⚠️⚠️ THIS IS A CO-ORD SET = TWO SEPARATE PIECES ⚠️⚠️⚠️
+A CO-ORD SET = TWO PIECES (NOT ONE PIECE)
 
-A CO-ORD SET consists of:
-1. TOP piece (worn on upper body)
-2. BOTTOM piece (worn on lower body)
+The model MUST wear:
+1️⃣ A TOP garment on the upper body
+2️⃣ A BOTTOM garment on the lower body
 
-BOTH pieces MUST be present in the final output.
+⛔⛔⛔ DO NOT GENERATE ONLY THE TOP ⛔⛔⛔
+⛔⛔⛔ DO NOT SKIP THE BOTTOM ⛔⛔⛔
+⛔⛔⛔ BOTH PIECES MUST BE VISIBLE ⛔⛔⛔
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-MANDATORY OUTPUT REQUIREMENTS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✓ Model MUST wear a TOP garment on upper body
-✓ Model MUST wear a BOTTOM garment on lower body
-✓ BOTH pieces must be visible in the shot
-✓ Generate the COMPLETE outfit (not just top, not just bottom)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-🚫 PROHIBITED:
-✗ DO NOT generate only the top piece
-✗ DO NOT generate only the bottom piece  
-✗ DO NOT skip the bottom
-✗ DO NOT make the model wear just a top without a bottom
+VERIFICATION: Can you see both top AND bottom in the output?
+If NO → STOP → Add the missing piece → Try again
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
   }
 
   // ============================================================================
-  // SECTION 3: COLOR & DESIGN SOURCE - WHERE TO GET COLORS FROM
+  // LENGTH REFERENCE FIREWALL - ULTRA STRICT
   // ============================================================================
-  let designAuthority = "";
-  const productSources = [];
-  if (indices.main > 0) productSources.push(`IMAGE ${indices.main}`);
-  if (indices.top > 0) productSources.push(`IMAGE ${indices.top}`);
-  if (indices.bottom > 0) productSources.push(`IMAGE ${indices.bottom}`);
-  
-  if (isCoordSet) {
-      designAuthority = `
+  let lengthFirewall = "";
+  if (hasLengthReference && isCoordSet) {
+      lengthFirewall = `
 ╔═══════════════════════════════════════════════════════════════════╗
-║  🎨 LEVEL 3 PRIORITY: COLOR & DESIGN SOURCE                       ║
+║   🚨 ABSOLUTE RULE #3: LENGTH REFERENCE FIREWALL - IMAGE ${indices.length}    ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+⛔⛔⛔ IMAGE ${indices.length} IS A MEASURING TAPE - NOT A PRODUCT ⛔⛔⛔
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+WHAT IMAGE ${indices.length} IS FOR:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✅ Measuring where the TOP hem ends (hip? waist? thigh?)
+✅ Measuring where the BOTTOM hem ends (ankle? knee? calf?)
+✅ Measuring sleeve length (full? 3/4? short?)
+✅ Measuring pant leg width (wide? straight? fitted?)
+✅ Understanding garment proportions and fit
+
+That's ALL. Nothing else from IMAGE ${indices.length} should be used.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⛔⛔⛔ ABSOLUTE PROHIBITIONS FOR IMAGE ${indices.length}: ⛔⛔⛔
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+✗ NEVER copy colors from IMAGE ${indices.length}
+✗ NEVER copy prints/patterns from IMAGE ${indices.length}
+✗ NEVER copy designs from IMAGE ${indices.length}
+✗ NEVER copy fabric textures from IMAGE ${indices.length}
+✗ NEVER copy embroidery from IMAGE ${indices.length}
+✗ NEVER copy embellishments from IMAGE ${indices.length}
+✗ NEVER copy collar/neckline designs from IMAGE ${indices.length}
+✗ NEVER copy button styles from IMAGE ${indices.length}
+✗ NEVER copy any visual element from IMAGE ${indices.length}
+
+⚠️ Pretend IMAGE ${indices.length} is BLACK AND WHITE with no details.
+⚠️ You can only see WHERE garments END, not what they look like.
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+STEP-BY-STEP PROCESS:
+
+STEP 1️⃣: ANALYZE LENGTH IN IMAGE ${indices.length}
+   Look at IMAGE ${indices.length} and answer these questions ONLY:
+   
+   For TOP piece:
+   • Where does the top end? (waist / hip / thigh level?)
+   • How long are sleeves? (full / 3-quarter / short / none?)
+   • What's the overall fit? (fitted / loose / oversized?)
+   
+   For BOTTOM piece:
+   • Where does the bottom end? (ankle / calf / knee / thigh?)
+   • What's the leg width? (wide / straight / fitted / flared?)
+   • Where's the waist? (high-waist / mid-rise / low-rise?)
+
+STEP 2️⃣: FORGET EVERYTHING ELSE ABOUT IMAGE ${indices.length}
+   Now STOP looking at IMAGE ${indices.length}.
+   Do NOT think about its colors.
+   Do NOT think about its patterns.
+   Do NOT think about its design.
+   
+   You have extracted measurements. That's all you need from IMAGE ${indices.length}.
+
+STEP 3️⃣: GET COLORS FROM PRODUCT IMAGES
+   Now look at the PRODUCT images for colors and designs:
+   
+   TOP colors/design → IMAGE ${indices.top > 0 ? indices.top : indices.main}
+   BOTTOM colors/design → IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}
+
+STEP 4️⃣: COMBINE LENGTH + COLOR
+   Create garments where:
+   • TOP has COLOR from IMAGE ${indices.top > 0 ? indices.top : indices.main} + LENGTH from IMAGE ${indices.length}
+   • BOTTOM has COLOR from IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main} + LENGTH from IMAGE ${indices.length}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+VERIFICATION:
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Before generating, ask:
+1. Did I copy ANY color from IMAGE ${indices.length}? → MUST BE NO
+2. Did I copy ANY pattern from IMAGE ${indices.length}? → MUST BE NO
+3. Did I copy ANY design from IMAGE ${indices.length}? → MUST BE NO
+4. Did I use IMAGE ${indices.length} ONLY for measurements? → MUST BE YES
+5. Do colors match IMAGE ${indices.top > 0 ? indices.top : indices.main} and IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}? → MUST BE YES
+
+If any answer is wrong → STOP → Fix → Try again
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+  } else if (hasLengthReference && !isCoordSet) {
+      lengthFirewall = `
+╔═══════════════════════════════════════════════════════════════════╗
+║        LENGTH REFERENCE FIREWALL - IMAGE ${indices.length}                ║
+╚════════════════════════════════════════════════════════════════════╝
+⛔ IMAGE ${indices.length} = LENGTH RULER ONLY
+✗ NEVER copy colors from IMAGE ${indices.length}
+✗ NEVER copy designs from IMAGE ${indices.length}
+✓ ONLY measure where garment hem ends
+✓ Apply this length to product from IMAGE ${indices.main}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+  }
+
+  // ============================================================================
+  // COLOR SOURCE DEFINITION
+  // ============================================================================
+  let colorSource = "";
+  if (isCoordSet) {
+      colorSource = `
+╔═══════════════════════════════════════════════════════════════════╗
+║         🚨 ABSOLUTE RULE #4: COLOR SOURCE DEFINITION              ║
 ╚═══════════════════════════════════════════════════════════════════╝
 
 WHERE TO GET COLORS AND DESIGNS FROM:
 
+🔝 TOP PIECE:
+   SOURCE: IMAGE ${indices.top > 0 ? indices.top : indices.main}
+   
+   COPY THESE FROM IMAGE ${indices.top > 0 ? indices.top : indices.main}:
+   ✓ Exact color/shade
+   ✓ Exact print/pattern
+   ✓ Exact fabric texture
+   ✓ Exact embroidery/embellishments
+   ✓ Exact design details (collar, buttons, etc.)
+   ✓ All visual elements
+
+👖 BOTTOM PIECE:
+   SOURCE: IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}
+   
+   COPY THESE FROM IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}:
+   ✓ Exact color/shade
+   ✓ Exact print/pattern
+   ✓ Exact fabric texture
+   ✓ Exact embroidery/embellishments
+   ✓ Exact design details (pockets, pleats, etc.)
+   ✓ All visual elements
+
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔝 TOP PIECE - COLOR & DESIGN SOURCE:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SOURCE: IMAGE ${indices.top > 0 ? indices.top : indices.main}
-
-WHAT TO COPY FROM IMAGE ${indices.top > 0 ? indices.top : indices.main}:
-✓ Exact color/shade of the top garment
-✓ Exact print/pattern on the top
-✓ Exact fabric texture
-✓ Exact embroidery or embellishments on the top
-✓ Exact design details (buttons, collars, sleeves style, etc.)
-✓ All visual styling of the top
-
-APPLY TO: Upper body garment on the model
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👖 BOTTOM PIECE - COLOR & DESIGN SOURCE:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-SOURCE: IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}
-
-WHAT TO COPY FROM IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}:
-✓ Exact color/shade of the bottom garment
-✓ Exact print/pattern on the bottom
-✓ Exact fabric texture
-✓ Exact embroidery or embellishments on the bottom
-✓ Exact design details (pockets, pleats, leg style, etc.)
-✓ All visual styling of the bottom
-
-APPLY TO: Lower body garment on the model
-
+⚠️ These are the ONLY sources for colors and designs.
+⚠️ IMAGE ${indices.length} should NOT influence colors at all.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
   } else {
-      designAuthority = `
+      colorSource = `
 ╔═══════════════════════════════════════════════════════════════════╗
-║  🎨 COLOR & DESIGN SOURCE                                         ║
+║              COLOR SOURCE DEFINITION                              ║
 ╚═══════════════════════════════════════════════════════════════════╝
 SOURCE: IMAGE ${indices.main}
-- Copy exact color, print, and design from IMAGE ${indices.main}
+Copy exact color, print, and design from IMAGE ${indices.main}
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
   }
 
   // ============================================================================
-  // SECTION 4: LENGTH REFERENCE - WHERE TO GET LENGTHS FROM
-  // ============================================================================
-  let lengthReference = "";
-  if (hasLengthReference && isCoordSet) {
-      lengthReference = `
-╔═══════════════════════════════════════════════════════════════════╗
-║  📐 LEVEL 4 PRIORITY: LENGTH REFERENCE - IMAGE ${indices.length}              ║
-╚═══════════════════════════════════════════════════════════════════╝
-
-⚠️⚠️⚠️ CRITICAL: IMAGE ${indices.length} IS FOR LENGTH ONLY ⚠️⚠️⚠️
-
-IMAGE ${indices.length} shows a co-ord set outfit. Use it ONLY to measure lengths.
-DO NOT copy colors or designs from IMAGE ${indices.length}.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🔝 TOP PIECE - LENGTH MEASUREMENT FROM IMAGE ${indices.length}:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-STEP 1: ANALYZE TOP in IMAGE ${indices.length}
-Look at the top garment in IMAGE ${indices.length} and measure:
-   • Where does the TOP HEM end? (at waist? at hip? at thigh?)
-   • How long are the sleeves? (full-length? 3/4? short? sleeveless?)
-   • What is the neckline depth?
-
-STEP 2: EXTRACT LENGTH ONLY
-   ✓ Extract: Hem position (waist-length / hip-length / thigh-length)
-   ✓ Extract: Sleeve length measurement
-   ✓ Extract: Overall top proportions
-
-STEP 3: DO NOT EXTRACT COLORS/DESIGNS
-   ✗ DO NOT copy the color of IMAGE ${indices.length} top
-   ✗ DO NOT copy the print/pattern of IMAGE ${indices.length} top
-   ✗ DO NOT copy any design details from IMAGE ${indices.length} top
-   ✗ IGNORE all visual styling of IMAGE ${indices.length} top
-
-STEP 4: APPLY LENGTH
-   → Take COLOR & DESIGN from IMAGE ${indices.top > 0 ? indices.top : indices.main}
-   → Apply LENGTH measurements from IMAGE ${indices.length} top
-   → Result: Top with color from IMAGE ${indices.top > 0 ? indices.top : indices.main} but length from IMAGE ${indices.length}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-👖 BOTTOM PIECE - LENGTH MEASUREMENT FROM IMAGE ${indices.length}:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-STEP 1: ANALYZE BOTTOM in IMAGE ${indices.length}
-Look at the bottom garment in IMAGE ${indices.length} and measure:
-   • Where does the BOTTOM HEM end? (at ankle? at calf? at knee?)
-   • What is the waist position? (high-waist? mid-rise? low-rise?)
-   • What is the leg width? (wide-leg? straight? fitted?)
-
-STEP 2: EXTRACT LENGTH ONLY
-   ✓ Extract: Hem position (full-length / ankle-length / calf-length / knee-length)
-   ✓ Extract: Waist position measurement
-   ✓ Extract: Leg width/silhouette
-   ✓ Extract: Overall bottom proportions
-
-STEP 3: DO NOT EXTRACT COLORS/DESIGNS
-   ✗ DO NOT copy the color of IMAGE ${indices.length} bottom
-   ✗ DO NOT copy the print/pattern of IMAGE ${indices.length} bottom
-   ✗ DO NOT copy any design details from IMAGE ${indices.length} bottom
-   ✗ IGNORE all visual styling of IMAGE ${indices.length} bottom
-
-STEP 4: APPLY LENGTH
-   → Take COLOR & DESIGN from IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}
-   → Apply LENGTH measurements from IMAGE ${indices.length} bottom
-   → Result: Bottom with color from IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main} but length from IMAGE ${indices.length}
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📊 SUMMARY OF LENGTH REFERENCE USAGE:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-IMAGE ${indices.length} = Length ruler ONLY
-IMAGE ${indices.top > 0 ? indices.top : indices.main} = Top color & design source
-IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main} = Bottom color & design source
-IMAGE ${indices.model} = Model identity (face, hair, footwear)
-
-FINAL OUTPUT = Model from IMAGE ${indices.model} wearing:
-   - TOP with color from IMAGE ${indices.top > 0 ? indices.top : indices.main} and length from IMAGE ${indices.length}
-   - BOTTOM with color from IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main} and length from IMAGE ${indices.length}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`;
-  } else if (hasLengthReference && !isCoordSet) {
-      lengthReference = `
-╔═══════════════════════════════════════════════════════════════════╗
-║  📐 LENGTH REFERENCE - IMAGE ${indices.length}                            ║
-╚═══════════════════════════════════════════════════════════════════╝
-✗ DO NOT copy colors or designs from IMAGE ${indices.length}
-✓ USE ONLY to measure where the garment hem ends
-✓ Apply this length to the product from IMAGE ${indices.main}
-`;
-  }
-
-  // ============================================================================
-  // SECTION 5: CAMERA & POSE
+  // CAMERA & POSE
   // ============================================================================
   const poseLower = pose.toLowerCase();
-  let cameraDirective = "Eye-level professional photography.";
-  let orientationDirective = "Model facing forward.";
-
+  let cameraSetup = "";
+  
   if (poseLower.includes('full') || poseLower.includes('front_full') || poseLower.includes('back_full')) {
-      orientationDirective = poseLower.includes('back') 
-          ? "🎥 180° REAR VIEW: Model facing away from camera. Show back design."
-          : "🎥 0° FRONTAL VIEW: Model facing directly at camera.";
-      cameraDirective = `
-📸 FULL BODY FRAMING:
-- Show model from head to toe (complete body visible)
-- Show footwear clearly
-- Camera at navel height
-- No cropping of head or feet`;
-  }
-
-  const styling = options.customInstructions ? `\n💅 ADDITIONAL STYLING: ${options.customInstructions}\n` : "";
-
-  // ============================================================================
-  // SECTION 6: FINAL VALIDATION CHECKLIST
-  // ============================================================================
-  let validation = "";
-  if (isCoordSet) {
-      validation = `
+      const direction = poseLower.includes('back') ? 'Model facing AWAY from camera (back view)' : 'Model facing DIRECTLY at camera (front view)';
+      cameraSetup = `
 ╔═══════════════════════════════════════════════════════════════════╗
-║  ✅ PRE-GENERATION VALIDATION CHECKLIST                           ║
+║                    CAMERA & POSE SETUP                            ║
 ╚═══════════════════════════════════════════════════════════════════╝
-
-Before generating the image, verify ALL of these:
-
-□ 1. Model's face matches IMAGE ${indices.model}? (MUST BE YES)
-□ 2. Model's hair matches IMAGE ${indices.model}? (MUST BE YES)
-□ 3. Model's footwear matches IMAGE ${indices.model}? (MUST BE YES)
-□ 4. TOP piece is present on upper body? (MUST BE YES)
-□ 5. BOTTOM piece is present on lower body? (MUST BE YES)
-□ 6. TOP color matches IMAGE ${indices.top > 0 ? indices.top : indices.main}? (MUST BE YES)
-□ 7. BOTTOM color matches IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}? (MUST BE YES)
-${hasLengthReference ? `□ 8. TOP length matches IMAGE ${indices.length}? (MUST BE YES)` : ''}
-${hasLengthReference ? `□ 9. BOTTOM length matches IMAGE ${indices.length}? (MUST BE YES)` : ''}
-${hasLengthReference ? `□ 10. NO colors copied from IMAGE ${indices.length}? (MUST BE YES)` : ''}
-
-⛔ IF ANY ANSWER IS "NO": STOP AND FIX BEFORE GENERATING
+POSE: ${pose}
+DIRECTION: ${direction}
+FRAMING: Full body (head to toe visible)
+CAMERA HEIGHT: Navel level
+FOCUS: Sharp detail on garments and model identity
+FOOTWEAR: Clearly visible
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+  } else {
+      cameraSetup = `
+╔═══════════════════════════════════════════════════════════════════╗
+║                    CAMERA & POSE SETUP                            ║
+╚═══════════════════════════════════════════════════════════════════╝
+POSE: ${pose}
+CAMERA: Eye-level professional photography
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
   }
 
+  // ============================================================================
+  // FINAL VALIDATION CHECKLIST
+  // ============================================================================
+  let finalValidation = "";
+  if (isCoordSet && hasLengthReference) {
+      finalValidation = `
+╔═══════════════════════════════════════════════════════════════════╗
+║              ✅ MANDATORY PRE-GENERATION CHECKLIST                ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+DO NOT GENERATE until ALL these are TRUE:
+
+□ Model face = IMAGE ${indices.model} face (100% match)
+□ Model hair = IMAGE ${indices.model} hair (100% match)
+□ Model footwear = IMAGE ${indices.model} footwear (100% match)
+□ Model skin tone = IMAGE ${indices.model} skin tone (100% match)
+□ TOP piece is present and visible
+□ BOTTOM piece is present and visible
+□ TOP color from IMAGE ${indices.top > 0 ? indices.top : indices.main} (NOT from IMAGE ${indices.length})
+□ BOTTOM color from IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main} (NOT from IMAGE ${indices.length})
+□ TOP length from IMAGE ${indices.length} measurement
+□ BOTTOM length from IMAGE ${indices.length} measurement
+□ ZERO colors copied from IMAGE ${indices.length}
+□ ZERO designs copied from IMAGE ${indices.length}
+
+⛔ If ANY checkbox is unchecked → DO NOT GENERATE
+⛔ Fix the issue first, then try again
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+  } else if (isCoordSet) {
+      finalValidation = `
+╔═══════════════════════════════════════════════════════════════════╗
+║              ✅ MANDATORY PRE-GENERATION CHECKLIST                ║
+╚═══════════════════════════════════════════════════════════════════╝
+
+□ Model identity matches IMAGE ${indices.model} (face, hair, footwear)
+□ TOP piece is present
+□ BOTTOM piece is present
+□ Both pieces visible in output
+
+⛔ If ANY checkbox is unchecked → DO NOT GENERATE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+  }
+
+  const styling = options.customInstructions ? `\nADDITIONAL NOTES: ${options.customInstructions}` : "";
+
   return `
-[TASK]: E-COMMERCE CO-ORD SET PHOTOSHOOT
+[GENERATION TASK]: E-COMMERCE PRODUCT PHOTOSHOOT
 
-${identityLock}
-${coordSetStructure}
-${designAuthority}
-${lengthReference}
+${modelLock}
+${coordStructure}
+${lengthFirewall}
+${colorSource}
+${cameraSetup}
 
-╔═══════════════════════════════════════════════════════════════════╗
-║  📸 CAMERA & POSE CONFIGURATION                                   ║
-╚═══════════════════════════════════════════════════════════════════╝
-POSE: ${pose}
-${orientationDirective}
-${cameraDirective}
-
-╔═══════════════════════════════════════════════════════════════════╗
-║  ⚙️ ENVIRONMENT                                                    ║
-╚═══════════════════════════════════════════════════════════════════╝
-- BACKGROUND: ${backgroundSpec}
-- LIGHTING: ${options.lighting}
+ENVIRONMENT:
+- Background: ${backgroundSpec}
+- Lighting: ${options.lighting}
 ${styling}
 
-${validation}
+${finalValidation}
 
 ╔═══════════════════════════════════════════════════════════════════╗
-║  🎯 FINAL OUTPUT REQUIREMENTS                                     ║
+║                      FINAL OUTPUT MUST HAVE                       ║
 ╚═══════════════════════════════════════════════════════════════════╝
-✓ Same model identity (face, hair, footwear from IMAGE ${indices.model})
-✓ Complete co-ord set (BOTH top and bottom visible)
-✓ Colors from product images (IMAGE ${indices.top > 0 ? indices.top : indices.main} & IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main})
-${hasLengthReference ? `✓ Lengths from reference image (IMAGE ${indices.length})` : ''}
-✓ Professional e-commerce quality
+✓ Same person as IMAGE ${indices.model} (face, hair, footwear identical)
+${isCoordSet ? '✓ Complete co-ord set (both top and bottom visible)' : ''}
+✓ Professional e-commerce quality photograph
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `.trim();
 };
@@ -745,6 +759,14 @@ export const generateProductImage = async (options: GenerationOptions): Promise<
                 lengthAnalysis, hasModelReference, indices
             );
             
+            // ADD THIS BEFORE THE API CALL
+            console.log('🔍 DEBUG INFO:');
+            console.log('Indices:', indices);
+            console.log('Has Model Reference:', hasModelReference);
+            console.log('Has Length Reference:', !!lengthRefPart);
+            console.log('Product Category:', options.productCategory);
+            console.log('Prompt Preview:', fullPrompt.substring(0, 500));
+
             currentParts.push({ text: fullPrompt });
             
             try {
