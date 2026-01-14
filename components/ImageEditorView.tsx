@@ -1,0 +1,181 @@
+
+import React, { useState } from 'react';
+import { UploadIcon, MagicWandIcon, SparklesIcon, DownloadIcon } from './Icons';
+import { editGeneratedImage } from '../services/geminiService';
+import { Spinner } from './Spinner';
+
+export const ImageEditorView: React.FC = () => {
+    const [file, setFile] = useState<File | null>(null);
+    const [preview, setPreview] = useState<string | null>(null);
+    const [processedImage, setProcessedImage] = useState<string | null>(null);
+    
+    const [prompt, setPrompt] = useState('');
+    const [isProcessing, setIsProcessing] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const f = e.target.files[0];
+            setFile(f);
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                setPreview(event.target?.result as string);
+                setProcessedImage(null); // Reset result on new upload
+            };
+            reader.readAsDataURL(f);
+        }
+    };
+
+    const handleProcess = async () => {
+        if (!preview || !prompt.trim()) return;
+        setIsProcessing(true);
+        setError(null);
+
+        try {
+            // Reusing the existing service function that handles base64 + prompt
+            const resultImageObj = await editGeneratedImage(preview, prompt);
+            setProcessedImage(resultImageObj.src);
+        } catch (err: any) {
+            console.error(err);
+            setError(err.message || 'Failed to edit image.');
+        } finally {
+            setIsProcessing(false);
+        }
+    };
+
+    const handleDownload = () => {
+        if (!processedImage) return;
+        const link = document.createElement('a');
+        link.href = processedImage;
+        link.download = `edited-image-${Date.now()}.jpg`;
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    };
+
+    return (
+        <div className="space-y-6 animate-in fade-in slide-in-from-bottom-2">
+            <div>
+                <h2 className="text-2xl font-bold text-white mb-2">Image Editor</h2>
+                <p className="text-gray-400 text-sm">Upload any image and use AI to add items, change elements, or modify style.</p>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                {/* Left: Controls */}
+                <div className="space-y-6">
+                    <div className="bg-white/[0.03] border border-white/[0.05] rounded-2xl p-6">
+                        <div className="flex justify-between items-center mb-4">
+                            <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Upload Source Image</h3>
+                        </div>
+                        <div className="relative group transition-all duration-300 rounded-xl border border-dashed border-white/10 bg-black/20 hover:bg-black/30 hover:border-white/20 h-64">
+                            <input 
+                                type="file" 
+                                className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10" 
+                                onChange={handleFileChange} 
+                                accept="image/png,image/jpeg,image/webp" 
+                            />
+                            
+                            {preview ? (
+                                <div className="absolute inset-0 p-2">
+                                     <div className="w-full h-full relative rounded-lg overflow-hidden">
+                                        <img src={preview} alt="Upload" className="w-full h-full object-contain" />
+                                        <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex flex-col items-center justify-center">
+                                            <UploadIcon className="w-8 h-8 text-white mb-2" />
+                                            <span className="text-xs font-bold text-white">Change Image</span>
+                                        </div>
+                                     </div>
+                                </div>
+                            ) : (
+                                <div className="absolute inset-0 flex flex-col items-center justify-center text-center p-4">
+                                    <div className="p-4 rounded-full bg-white/5 text-gray-500 mb-3 group-hover:bg-white/10 group-hover:text-gray-300 transition-colors">
+                                        <UploadIcon className="w-8 h-8" />
+                                    </div>
+                                    <p className="text-sm font-medium text-gray-300">Drop image here</p>
+                                    <p className="text-[10px] text-gray-500 mt-1 uppercase tracking-wide">PNG, JPG up to 10MB</p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    <div className="bg-white/[0.03] border border-white/[0.05] rounded-2xl p-6">
+                        <div className="flex items-center gap-2 mb-4">
+                             <MagicWandIcon className="w-4 h-4 text-purple-400" />
+                             <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest">Edit Instruction</h3>
+                        </div>
+                        
+                        <div className="relative">
+                            <textarea 
+                                value={prompt}
+                                onChange={(e) => setPrompt(e.target.value)}
+                                placeholder="e.g. Add a red scarf to the model, Make the background snowy, Change the shoe color to blue..."
+                                className="w-full h-32 bg-black/40 border border-white/10 rounded-xl p-4 text-white text-sm focus:border-purple-500 outline-none resize-none"
+                            />
+                        </div>
+                    </div>
+
+                    {error && (
+                        <div className="bg-red-500/10 border border-red-500/20 text-red-200 text-sm p-3 rounded-lg text-center">
+                            {error}
+                        </div>
+                    )}
+
+                    <button 
+                        onClick={handleProcess}
+                        disabled={!preview || !prompt.trim() || isProcessing}
+                        className="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold py-4 rounded-xl transition-all shadow-lg shadow-purple-900/20 flex items-center justify-center gap-2"
+                    >
+                        {isProcessing ? (
+                            <>
+                                <Spinner />
+                                <span>Processing Edit...</span>
+                            </>
+                        ) : (
+                            <>
+                                <SparklesIcon className="w-5 h-5" />
+                                <span>Generate Edit</span>
+                            </>
+                        )}
+                    </button>
+                </div>
+
+                {/* Right: Preview */}
+                <div className="bg-[#0a0a0a] border border-white/[0.05] rounded-2xl p-6 flex flex-col h-[700px]">
+                    <h3 className="text-xs font-bold text-gray-500 uppercase tracking-widest mb-4 flex items-center gap-2">
+                        Result
+                    </h3>
+                    
+                    <div className="flex-1 rounded-xl relative overflow-hidden flex items-center justify-center group shadow-inner bg-[#1a1a1a] border border-white/5">
+                        <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:24px_24px]"></div>
+                        
+                        {!processedImage && (
+                            <div className="text-gray-600 text-sm flex flex-col items-center">
+                                <MagicWandIcon className="w-12 h-12 mb-3 opacity-20" />
+                                <span>Edited image will appear here</span>
+                            </div>
+                        )}
+
+                        {processedImage && (
+                            <img 
+                                src={processedImage} 
+                                alt="Processed" 
+                                className="max-w-full max-h-full object-contain relative z-10" 
+                            />
+                        )}
+                    </div>
+
+                     {processedImage && (
+                        <div className="mt-4 pt-4 border-t border-white/10">
+                            <button 
+                                onClick={handleDownload}
+                                className="w-full bg-white text-black hover:bg-gray-200 font-bold py-3 rounded-xl transition-all flex items-center justify-center gap-2"
+                            >
+                                <DownloadIcon className="w-5 h-5" />
+                                Download Image
+                            </button>
+                        </div>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+};
