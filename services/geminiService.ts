@@ -253,226 +253,75 @@ const buildEditPrompt = (
     backgroundSpec = options.background;
   }
 
-  // 1. BIOMETRIC CONSTANT LOCK (IMAGE IS THE IDENTITY AUTHORITY)
+  // 1. BIOMETRIC IDENTITY LOCK (ACTIVE SAVED MODEL IS IMMUTABLE)
   let identityLock = "";
   if (hasModelReference) {
       identityLock = `
 ╔══════════════════════════════════════════════════════════════╗
 ║ ⭐ CRITICAL: BIOMETRIC IDENTITY LOCK - IMAGE ${indices.model}      ║
 ╚══════════════════════════════════════════════════════════════╝
-
-🔒 ABSOLUTE REQUIREMENTS - NO EXCEPTIONS:
+🔒 ABSOLUTE IDENTITY PERSISTENCE - NO EXCEPTIONS:
+1. FACIAL ANCHOR: Copy EXACT face, bone structure, and features from IMAGE ${indices.model}.
+2. HAIR ANCHOR: 100% MATCH hair color, volume, and hairstyle from IMAGE ${indices.model}.
+3. FOOTWEAR ANCHOR: Replicate the EXACT shoes/sandals/boots visible in IMAGE ${indices.model}.
+4. SKIN AUTHORITY: Use exact pigmentation and undertones from IMAGE ${indices.model}.
+5. CONSISTENCY: This is the SAME human being. Do not change her identity across poses.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. FACIAL GEOMETRY: Copy EXACT face structure from IMAGE ${indices.model}
-   - Same bone structure, nose shape, lips, eyes, eyebrows
-   - Same facial proportions and features
-   - Same expression style
-
-2. HAIR AUTHORITY: 100% match to IMAGE ${indices.model}
-   - EXACT hair color (RGB match required)
-   - EXACT hairstyle (length, cut, parting)
-   - EXACT hair texture and volume
-   - NO variations, NO creative interpretation
-
-3. SKIN TONE: Exact pigmentation from IMAGE ${indices.model}
-   - Match RGB values of skin
-   - Same undertones
-
-4. IDENTITY PRESERVATION:
-   - This is the SAME human across all poses
-   - DO NOT randomize or alter any facial features
-   - DO NOT change hairstyle between shots
-   - Maintain complete biometric consistency
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+`;
+  } else {
+      identityLock = `
+╔══════════════════════════════════════════════════════════════╗
+║ ⭐ PERSONA SPECIFICATION                                     ║
+╚══════════════════════════════════════════════════════════════╝
+- IDENTITY: ${buildModelDescription(options.modelAttributes) || 'Professional model'}.
+- UNIFORMITY: Same face and hair in every shot.
 `;
   }
 
-  // 2. SOVEREIGN DESIGN AUTHORITY (COLORS & PATTERNS ONLY FROM PRODUCT IMAGES)
+  // 2. SOVEREIGN DESIGN AUTHORITY (COLORS & PRINTS ONLY FROM PRODUCT)
   let designAuthority = "";
-  const productSourceIndices = [];
-  const productImageList = [];
+  const productSources = [];
+  if (indices.main > 0) productSources.push(`IMAGE ${indices.main}`);
+  if (indices.top > 0) productSources.push(`IMAGE ${indices.top}`);
+  if (indices.bottom > 0) productSources.push(`IMAGE ${indices.bottom}`);
   
-  if (indices.main > 0) {
-      productSourceIndices.push(`IMAGE ${indices.main}`);
-      productImageList.push(indices.main);
-  }
-  if (indices.top > 0) {
-      productSourceIndices.push(`IMAGE ${indices.top}`);
-      productImageList.push(indices.top);
-  }
-  if (indices.bottom > 0) {
-      productSourceIndices.push(`IMAGE ${indices.bottom}`);
-      productImageList.push(indices.bottom);
-  }
-  if (indices.back > 0) {
-      productSourceIndices.push(`IMAGE ${indices.back}`);
-      productImageList.push(indices.back);
-  }
-  if (indices.fabric > 0) {
-      productSourceIndices.push(`IMAGE ${indices.fabric}`);
-      productImageList.push(indices.fabric);
-  }
-
-  if (options.productCategory === ProductCategory.CoordSet) {
+  if (options.productCategory === ProductCategory.CoordSet || options.productCategory === ProductCategory.FullBody) {
       designAuthority = `
 ╔══════════════════════════════════════════════════════════════╗
-║ 🛡️ CRITICAL: COLOR & DESIGN AUTHORITY - CO-ORD SET          ║
+║ 🛡️ CRITICAL: COLOR & DESIGN AUTHORITY - PRODUCT ONLY         ║
 ╚══════════════════════════════════════════════════════════════╝
-
-🎨 ABSOLUTE COLOR SOURCE: ${productSourceIndices.join(' AND ')}
+🎨 PRIMARY SOURCE: ${productSources.join(' AND ')}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CRITICAL RULES - NO EXCEPTIONS:
-
-1. TOP GARMENT SOURCE: IMAGE ${indices.top > 0 ? indices.top : indices.main}
-   ✓ Take EXACT RGB color values
-   ✓ Copy precise patterns, prints, textures
-   ✓ Match buttons, collars, sleeves, seams 1:1
-   ✓ Replicate fabric type and finish
-
-2. BOTTOM GARMENT SOURCE: IMAGE ${indices.bottom > 0 ? indices.bottom : indices.main}
-   ✓ Take EXACT RGB color values
-   ✓ Copy precise patterns, prints, textures
-   ✓ Match pockets, seams, waistband, hem 1:1
-   ✓ Replicate fabric type and finish
-
-${indices.back > 0 ? `3. BACK VIEW REFERENCE: IMAGE ${indices.back}
-   ✓ Use for back design details only
-   ✓ Color authority remains with front product images` : ''}
-
-${indices.fabric > 0 ? `4. FABRIC DETAIL REFERENCE: IMAGE ${indices.fabric}
-   ✓ Use for texture and material quality
-   ✓ Color authority remains with main product images` : ''}
-
-⚠️ STRICT PROHIBITIONS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✗ DO NOT take colors from IMAGE ${indices.length} (length reference)
-✗ DO NOT take colors from IMAGE ${indices.model} (model reference)
-✗ DO NOT invent or modify colors
-✗ DO NOT blend or average colors from multiple sources
-✗ ONLY use colors from: ${productImageList.join(', ')}
-
-RESULT REQUIREMENT: Generated outfit must be PIXEL-PERFECT match to 
-product images ${productImageList.join(' and ')} in terms of color and design.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-`;
-  } else if (options.productCategory === ProductCategory.FullBody) {
-      designAuthority = `
-╔══════════════════════════════════════════════════════════════╗
-║ 🛡️ CRITICAL: COLOR & DESIGN AUTHORITY - FULL OUTFIT         ║
-╚══════════════════════════════════════════════════════════════╝
-
-🎨 ABSOLUTE COLOR SOURCE: ${productSourceIndices.join(' AND ')}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CRITICAL RULES - NO EXCEPTIONS:
-
-1. COMPLETE OUTFIT SOURCE: ${productSourceIndices.join(', ')}
-   ✓ Take EXACT RGB color values for ALL garments
-   ✓ Copy precise patterns, prints, textures
-   ✓ Match ALL design details 1:1
-   ✓ Replicate fabric types and finishes
-
-${indices.back > 0 ? `2. BACK VIEW REFERENCE: IMAGE ${indices.back}
-   ✓ Use for back design details only
-   ✓ Color authority remains with front product images` : ''}
-
-${indices.fabric > 0 ? `3. FABRIC DETAIL REFERENCE: IMAGE ${indices.fabric}
-   ✓ Use for texture and material quality
-   ✓ Color authority remains with main product images` : ''}
-
-⚠️ STRICT PROHIBITIONS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✗ DO NOT take colors from IMAGE ${indices.length} (length reference)
-✗ DO NOT take colors from IMAGE ${indices.model} (model reference)
-✗ DO NOT invent or modify colors
-✗ DO NOT blend or average colors from multiple sources
-✗ ONLY use colors from: ${productImageList.join(', ')}
-
-RESULT REQUIREMENT: Generated outfit must be PIXEL-PERFECT match to 
-product images in terms of color and design.
+- COLOR LOCK: Take 1:1 RGB colors, prints, and fabric texture ONLY from these Product images.
+- TOP PIECE: Exact match to ${indices.top > 0 ? `IMAGE ${indices.top}` : `IMAGE ${indices.main}`}.
+- BOTTOM PIECE: Exact match to ${indices.bottom > 0 ? `IMAGE ${indices.bottom}` : `IMAGE ${indices.main}`}.
+- MAPPING: If the source is a dolly/flat shot, transfer the ENTIRE design to the Human Model.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
   } else {
       designAuthority = `
 ╔══════════════════════════════════════════════════════════════╗
-║ 🛡️ CRITICAL: COLOR & DESIGN AUTHORITY - SINGLE PRODUCT      ║
+║ 🛡️ CRITICAL: COLOR & DESIGN AUTHORITY - SINGLE PRODUCT       ║
 ╚══════════════════════════════════════════════════════════════╝
-
-🎨 ABSOLUTE COLOR SOURCE: IMAGE ${indices.main}
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-CRITICAL RULES - NO EXCEPTIONS:
-
-1. PRODUCT SOURCE: IMAGE ${indices.main}
-   ✓ Take EXACT RGB color values
-   ✓ Copy precise patterns, prints, textures 1:1
-   ✓ Match ALL buttons, seams, stitching, details
-   ✓ Replicate fabric type and finish exactly
-
-${indices.back > 0 ? `2. BACK VIEW REFERENCE: IMAGE ${indices.back}
-   ✓ Use ONLY for back design structure
-   ✓ Colors MUST match IMAGE ${indices.main}, not IMAGE ${indices.back}` : ''}
-
-${indices.fabric > 0 ? `3. FABRIC DETAIL REFERENCE: IMAGE ${indices.fabric}
-   ✓ Use ONLY for texture and weave details
-   ✓ Colors MUST match IMAGE ${indices.main}, not IMAGE ${indices.fabric}` : ''}
-
-⚠️ STRICT PROHIBITIONS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✗ DO NOT take colors from IMAGE ${indices.length} (length reference)
-✗ DO NOT take colors from IMAGE ${indices.model} (model reference)
-✗ DO NOT take colors from IMAGE ${indices.back || indices.fabric} 
-✗ DO NOT invent or modify colors
-✗ ONLY use IMAGE ${indices.main} for ALL color data
-
-RESULT REQUIREMENT: Generated garment must be PIXEL-PERFECT match to 
-IMAGE ${indices.main} in terms of color and design.
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎨 PRIMARY SOURCE: IMAGE ${indices.main}
+- ABSOLUTE COLOR: Take exact color and print from IMAGE ${indices.main}.
+- DESIGN MATCH: 1:1 mirror of all visual details.
 `;
   }
 
-  // 3. CHROMATIC FIREWALL (LENGTH REF IS A GHOST RULER)
+  // 3. CHROMATIC FIREWALL (LENGTH REFERENCE IS A GHOST RULER)
   let measurementLock = "";
   if (hasLengthReference) {
       measurementLock = `
 ╔══════════════════════════════════════════════════════════════╗
-║ 📐 CRITICAL: LENGTH REFERENCE - IMAGE ${indices.length} IS RULER ONLY  ║
+║ 📐 CRITICAL: LENGTH FIREWALL - IMAGE ${indices.length} IS RULER ONLY   ║
 ╚══════════════════════════════════════════════════════════════╝
-
-⚠️ EXTREME WARNING - ZERO COLOR TRANSFER ALLOWED
+⚠️ EXTREME WARNING: ZERO COLOR TRANSFER ALLOWED FROM IMAGE ${indices.length}
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-IMAGE ${indices.length} IS A MEASUREMENT TOOL ONLY - NOT A COLOR SOURCE
-
-🚫 ABSOLUTE PROHIBITIONS FOR IMAGE ${indices.length}:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-✗ DO NOT copy ANY colors from IMAGE ${indices.length}
-✗ DO NOT use whites, blacks, or any hues from IMAGE ${indices.length}
-✗ DO NOT take pattern/print inspiration from IMAGE ${indices.length}
-✗ DO NOT reference fabric appearance from IMAGE ${indices.length}
-✗ IGNORE all visual styling in IMAGE ${indices.length}
-
-✓ ONLY PERMITTED USE OF IMAGE ${indices.length}:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-1. VERTICAL MEASUREMENTS ONLY:
-   - Where does the garment hemline terminate on the body?
-   - Hip level? Knee level? Mid-thigh? Ankle?
-   - Use ONLY for Y-axis positioning
-
-2. LENGTH MAPPING:
-   - Map the TERMINATION POINT to the model's anatomy
-   - Apply this length to the PRODUCT from ${productImageList.join('/')}
-   - Keep product colors, apply reference length
-
-EXAMPLE CORRECT INTERPRETATION:
-- IMAGE ${indices.length} shows hem at mid-thigh
-- Product IMAGE ${productImageList[0]} is blue dress
-- RESULT: Blue dress (from product) ending at mid-thigh (from length ref)
-
-EXAMPLE WRONG INTERPRETATION:
-- Taking the white/black color from length reference ❌
-- Mixing colors between images ❌
-- Using length ref for anything except vertical measurement ❌
-
-🔥 FINAL RULE: Treat IMAGE ${indices.length} as a TRANSPARENT RULER
-with ONLY vertical measurement data. All visual data is INVISIBLE.
+✗ DO NOT copy colors, whites, blacks, or designs from IMAGE ${indices.length}.
+✗ DISCARD all visual styling, prints, and textures from IMAGE ${indices.length}.
+✓ USE ONLY as a vertical ruler to determine exactly where the garment ends (hems).
+✓ MAP the hem position from IMAGE ${indices.length} onto the product from the DESIGN AUTHORITY.
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 `;
   }
@@ -484,43 +333,19 @@ with ONLY vertical measurement data. All visual data is INVISIBLE.
 
   if (poseLower.includes('full') || poseLower.includes('front_full') || poseLower.includes('back_full')) {
       orientationDirective = poseLower.includes('back') 
-          ? `
-🎥 CAMERA ORIENTATION: 180° REAR VIEW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Subject facing COMPLETELY AWAY from camera
-- Show full back of head, shoulders, torso, legs
-- Focus on back design details
-- Model looking away, not turning head`
-          : `
-🎥 CAMERA ORIENTATION: 0° FRONTAL VIEW
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- Subject facing DIRECTLY at camera
-- Perfect bilateral symmetry
-- Focus on front design details
-- Eye contact with camera`;
-
+          ? "🎥 180° REAR VIEW: Model facing away. Focus on back design."
+          : "🎥 0° FRONTAL VIEW: Model facing directly at camera. Perfect symmetry.";
       cameraDirective = `
-📸 FRAMING SPECIFICATIONS:
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-- FULL BODY: Head to toe completely visible
-- NO CROPPING: Entire person must fit in frame
-- LENS HEIGHT: Positioned at model's navel level
-- DISTANCE: Appropriate to show complete figure
-- FOCUS: Sharp, high-definition rendering
-- DEPTH: Slight depth of field, subject in focus`;
+📸 FRAMING:
+- FULL BODY: Head to toe visible. No cropping.
+- LENS HEIGHT: Navel level.
+- FOCUS: Sharp detail on product edges and model identity.`;
   }
 
-  const styling = options.customInstructions ? `
-╔══════════════════════════════════════════════════════════════╗
-║ 💅 STYLING DIRECTIVE                                         ║
-╚══════════════════════════════════════════════════════════════╝
-${options.customInstructions}
-` : "";
+  const styling = options.customInstructions ? `\n💅 STYLING: ${options.customInstructions}\n` : "";
 
   return `
-╔══════════════════════════════════════════════════════════════╗
-║ 🎯 PRECISION E-COMMERCE CATALOG GENERATION                   ║
-╚══════════════════════════════════════════════════════════════╝
+[TASK]: PRECISION E-COMMERCE PRODUCTION
 
 ${identityLock}
 ${designAuthority}
@@ -529,41 +354,16 @@ ${measurementLock}
 ╔══════════════════════════════════════════════════════════════╗
 ║ 📸 CAMERA & POSE CONFIGURATION                               ║
 ╚══════════════════════════════════════════════════════════════╝
-
-POSE INSTRUCTION: ${pose}
+POSE: ${pose}
 ${orientationDirective}
 ${cameraDirective}
 
 ╔══════════════════════════════════════════════════════════════╗
 ║ ⚙️ PRODUCTION SPECIFICATIONS                                 ║
 ╚══════════════════════════════════════════════════════════════╝
-
-ENVIRONMENT:
-- Background: ${backgroundSpec}
-- Lighting: ${options.lighting}
-- Quality: Professional e-commerce standard
-- Resolution: High-definition, sharp focus
-
-FABRIC RENDERING:
-- Match texture from product images ${productImageList.join('/')}
-- Show fabric drape and fall naturally
-- Maintain material characteristics
+- ENVIRONMENT: ${backgroundSpec}, ${options.lighting}.
 ${styling}
-
-╔══════════════════════════════════════════════════════════════╗
-║ ✅ FINAL VALIDATION CHECKLIST                                ║
-╚══════════════════════════════════════════════════════════════╝
-
-Before generating, verify:
-☑ Model face/hair matches IMAGE ${indices.model} exactly
-☑ Product colors match ONLY images ${productImageList.join('/')}
-☑ NO color leakage from length reference IMAGE ${indices.length}
-☑ Length/fit uses measurement from IMAGE ${indices.length}
-☑ Pose and camera angle match specification
-☑ Background and lighting are correct
-☑ Professional e-commerce quality achieved
-
-GENERATE NOW with 100% adherence to above specifications.
+- RESULT: 1:1 BIOMETRIC MATCH. 1:1 PRODUCT COLOR MATCH. ZERO LEAKAGE FROM REFERENCE.
 `.trim();
 };
 
@@ -616,9 +416,16 @@ export const generateProductImage = async (options: GenerationOptions): Promise<
         let hasModelReference = false;
         let indices = { model: -1, top: -1, bottom: -1, main: -1, length: -1, back: -1, fabric: -1 };
         
-        // 1. BIOMETRIC AUTHORITY (IMAGE 1)
+        // 1. BIOMETRIC AUTHORITY (IMAGE 1) - ABSOLUTE PRIORITY
         if (!options.isEditMode && options.modelImageSrc) {
             const modelData = await urlToBase64(options.modelImageSrc);
+            if (modelData) {
+                baseParts.push({ inlineData: modelData });
+                hasModelReference = true;
+                indices.model = baseParts.length;
+            }
+        } else if (options.isEditMode && options.modelLockImage) {
+            const modelData = await urlToBase64(options.modelLockImage);
             if (modelData) {
                 baseParts.push({ inlineData: modelData });
                 hasModelReference = true;
@@ -638,7 +445,7 @@ export const generateProductImage = async (options: GenerationOptions): Promise<
                 baseParts.push({ inlineData: { mimeType, data } });
                 indices.bottom = baseParts.length;
             }
-            // If user only uploaded one file for a full body or co-ord
+            // Fallback
             if (!options.uploadedFileTop && !options.uploadedFileBottom && options.uploadedFile) {
                 const { mimeType, data } = await fileToBase64(options.uploadedFile);
                 baseParts.push({ inlineData: { mimeType, data } });
